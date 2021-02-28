@@ -1,6 +1,7 @@
 var text = "In computer science and information theory, a Huffman code is a particular type of optimal prefix code that is commonly used for lossless data compression. The process of finding or using such a code proceeds by means of Huffman coding, an algorithm developed by David A. Huffman while he was a Sc.D. student at MIT, and published in the 1952 paper \"A Method for the Construction of Minimum-Redundancy Codes\".\n\nThe output from Huffman's algorithm can be viewed as a variable-length code table for encoding a source symbol (such as a character in a file). The algorithm derives this table from the estimated probability or frequency of occurrence (weight) for each possible value of the source symbol. As in other entropy encoding methods, more common symbols are generally represented using fewer bits than less common symbols. Huffman's method can be efficiently implemented, finding a code in time linear to the number of input weights if these weights are sorted. However, although optimal among methods encoding symbols separately, Huffman coding is not always optimal among all compression methods - it is replaced with arithmetic coding or asymmetric numeral systems if better compression ratio is required.\n";
 var frequency;
 var data;
+var table;
 function getFrequency(text){
 	f = {};
 	t = Array.from(text);
@@ -11,16 +12,15 @@ function getFrequency(text){
 	return f;
 }
 function postProcessing(node, key = ""){
+	if(!node.children){
+		node.key = node.name;
+		table[node.name] = key.slice(0,-1);
+		return;
+	}
 	node.key = key;
-	for(var i=0; node.children&&i<node.children.length; i++){
+	for(var i=0; i<node.children.length; i++){
 		postProcessing(node.children[i],key+i.toString());
 	}
-}
-
-function niceChar(c){
-	if(c=="\n")	return '\\n';
-	if(c==" ")	return '\\s';
-	return c;
 }
 
 function getHuffmanTree(f){
@@ -30,7 +30,7 @@ function getHuffmanTree(f){
 			value: f[k],
 			children: [
 				{
-					name: niceChar(k)
+					name: k
 				}
 			]
 		});
@@ -39,8 +39,6 @@ function getHuffmanTree(f){
 	var p = nodes.pop();
 	while(nodes.length){
 		var q = nodes.pop();
-		p.index = '0';
-		q.index = '1';
 		node = {
 			value: p.value+q.value,
 			children: [p,q]
@@ -60,6 +58,7 @@ function getHuffmanTree(f){
 }
 
 function setUpData(t){
+	table = {};
 	text = t;
 	frequency = getFrequency(text);
 	data = getHuffmanTree(frequency);

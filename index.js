@@ -37,7 +37,7 @@ function render(){
 	.transition().duration(period)
 	.attr("y", d => offset+d.x)
 	.attr("x", d => offset+d.y)
-	.text(d => d.data.name + "\u00A0\u00A0\u00A0" + d.data.key);
+	.text(d => d.data.name + "\u00A0\u00A0\u00A0" + table[d.data.key]);
 
 	svg.selectAll('text.link')
 	.style("opacity", d => d.target.height)
@@ -73,7 +73,13 @@ function mouseOut(d){
 }
 
 function outputText(){
-	
+	out_text = d3.select("#output_text");
+	out_text.html("");
+	for(var i=0; i<text.length; i++){
+		out_text.append('span')
+		.classed(text[i],true)
+		.text(table[text[i]]);
+	}
 }
 
 function onTextChange(t){
@@ -140,9 +146,7 @@ function onTextChange(t){
 	.attr("x", d => offset+d.y)
 	.attr("dominant-baseline", "middle")
 	.attr("text-anchor", "middle")
-	.attr("fill", "black")
-	// .style("opacity", 0)
-	.text(d => d.data.value);
+	.attr("fill", "black");
 
 	text_count
 	.exit()
@@ -161,7 +165,6 @@ function onTextChange(t){
 	// .attr("text-anchor", "middle")
 	.attr("fill", "black")
 	// .style("opacity", 0)
-	.text(d => d.data.name + "\u00A0\u00A0\u00A0" + d.data.key)
 	.on('mouseover', mouseOver)
 	.on('mouseout', mouseOut);
 
@@ -180,9 +183,7 @@ function onTextChange(t){
 	.attr("y", d => offset+(d.target.x+d.source.x)/2)
 	.attr("x", d => offset+(d.target.y+d.source.y)/2)
 	.attr("text-anchor", "middle")
-	.attr("fill", "black")
-	// .style("opacity", 0)
-	.text(d => d.target.data.key.substr(-1));
+	.attr("fill", "black");
 
 	text_link
 	.exit()
