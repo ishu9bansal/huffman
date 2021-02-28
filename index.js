@@ -14,6 +14,7 @@ function render(){
 	.attr('x1', d => offset+d.source.y)
 	.attr('y2', d => offset+d.target.x)
 	.attr('x2', d => offset+d.target.y)
+	.style('stroke', 'lightgrey')
 	.style("opacity", d => d.target.height);
 
 	svg.selectAll('circle.node')
@@ -51,7 +52,7 @@ function render(){
 function highlight(){
 	svg.selectAll('line.link')
 	.transition().duration(quick)
-	.style('stroke', d => d.target.highlight?'aqua':'grey');
+	.style('stroke', d => d.target.highlight?'aqua':'lightgrey');
 	svg.selectAll('circle.node')
 	.transition().duration(quick)
 	.style('fill', d => d.highlight?'aqua':'lightcyan')
@@ -65,11 +66,13 @@ function highlight(){
 function mouseOver(d){
 	ancestors = d.ancestors().forEach(x => x.highlight = true);
 	highlight();
+	d3.selectAll('span.c'+d.data.key.charCodeAt().toString()).style("background-color", 'aqua');
 }
 
 function mouseOut(d){
 	ancestors = d.ancestors().forEach(x => x.highlight = false);
 	highlight();
+	d3.selectAll('span.c'+d.data.key.charCodeAt().toString()).style("background-color", null);
 }
 
 function outputText(){
@@ -77,7 +80,7 @@ function outputText(){
 	out_text.html("");
 	for(var i=0; i<text.length; i++){
 		out_text.append('span')
-		.classed(text[i],true)
+		.classed("c"+text[i].charCodeAt().toString(),true)
 		.text(table[text[i]]);
 	}
 }
@@ -100,8 +103,7 @@ function onTextChange(t){
 	.attr('y1', d => offset+d.source.x)
 	.attr('x1', d => offset+d.source.y)
 	.attr('y2', d => offset+d.source.x)
-	.attr('x2', d => offset+d.source.y)
-	.style('stroke', 'grey');
+	.attr('x2', d => offset+d.source.y);
 	
 	line_link
 	.exit()
