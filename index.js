@@ -10,9 +10,9 @@ function init(){
 	height = window.innerHeight - 20;
 
 	w = width/2 - 2*offset - 2*padding;
-	h = height - 2*offset
+	h = height - 2*offset;
 
-	svg = d3.select("svg").attr("width", width/2).attr("height", height).style("backgroud-color","red");
+	svg = d3.select("svg").attr("width", width/2).attr("height", height);
 
 	setUpData();
 	root = d3.hierarchy(data);
@@ -70,6 +70,18 @@ function init(){
 		}
 		return str.split("").reverse().join("");
 	});
+
+
+	svg
+	.selectAll('text.link')
+	.data(root.links())
+	.enter().append('text')
+	.classed('link', d => d.target.height)
+	.attr("y", d => offset+(d.target.x+d.source.x)/2)
+	.attr("x", d => offset+(d.target.y+d.source.y)/2)
+	.attr("text-anchor", "middle")
+	.attr("fill", "black")
+	.text(d => d.target.height?d.target.data.index:"");
 }
 
 init();
