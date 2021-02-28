@@ -26,8 +26,8 @@ function getHuffmanTree(f){
 	var p = nodes.pop();
 	while(nodes.length){
 		var q = nodes.pop();
-		p.index = 0;
-		q.index = 1;
+		p.index = '0';
+		q.index = '1';
 		node = {
 			value: p.value+q.value,
 			children: [p,q]

@@ -6,3 +6,7 @@ line.link{
 	stroke: black;
 	stroke-width: 1;
 }
+
+text{
+	font-family: monospace;
+}
