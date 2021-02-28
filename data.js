@@ -10,6 +10,19 @@ function getFrequency(text){
 	});
 	return f;
 }
+function postProcessing(node, key = ""){
+	node.key = key;
+	for(var i=0; node.children&&i<node.children.length; i++){
+		postProcessing(node.children[i],key+i.toString());
+	}
+}
+
+function niceChar(c){
+	if(c=="\n")	return '\\n';
+	if(c==" ")	return '\\s';
+	return c;
+}
+
 function getHuffmanTree(f){
 	var nodes = [];
 	for(var k in f){
@@ -17,7 +30,7 @@ function getHuffmanTree(f){
 			value: f[k],
 			children: [
 				{
-					name: k
+					name: niceChar(k)
 				}
 			]
 		});
@@ -42,10 +55,12 @@ function getHuffmanTree(f){
 		}
 		p = nodes.pop();
 	}
+	postProcessing(p);
 	return p;
 }
 
-function setUpData(){
+function setUpData(t){
+	text = t;
 	frequency = getFrequency(text);
 	data = getHuffmanTree(frequency);
 }
