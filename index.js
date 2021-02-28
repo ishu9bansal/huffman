@@ -13,7 +13,7 @@ function init(){
 
 	svg = d3.select("svg").attr("width", width/2).attr("height", height);
 
-	setUpData("jshbcksbiucbiwdvuyvadiyvciwboauw0dvbudyBV0P0YABWDOUHVBC0UYAWBD0UCYBAWEF");
+	setUpData();
 	root = d3.hierarchy(data);
 	var treeLayout = d3.cluster();
 	treeLayout.size([h,w])
@@ -24,7 +24,7 @@ function init(){
 	.data(root.links())
 	.enter()
 	.append('line')
-	.classed('link', true)
+	.classed('link', d => d.target.height)
 	.attr('y1', function(d) {return offset+d.source.x;})
 	.attr('x1', function(d) {return offset+d.source.y;})
 	.attr('y2', function(d) {return offset+d.target.x;})
@@ -35,10 +35,22 @@ function init(){
 	.data(root.descendants())
 	.enter()
 	.append('circle')
-	.classed('node', true)
+	.classed('node', d => d.height)
 	.attr('cy', function(d) {return offset+d.x;})
 	.attr('cx', function(d) {return offset+d.y;})
-	.attr('r', radius);
+	.attr('r', d => d.height?radius:0);
+
+	svg.selectAll("text")
+	.data(root.descendants())
+	.enter().append("text")
+	.classed("count", d => d.height)
+	.classed("label", d => !d.height)
+	.attr("y", d => offset+d.x)
+	.attr("x", d => offset+d.y)
+	.attr("dominant-baseline", "middle")
+	.attr("text-anchor", "middle")
+	.attr("fill", "black")
+	.text(d => d.height?d.data.value:d.data.name);
 
 }
 
