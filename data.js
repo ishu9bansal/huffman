@@ -59,6 +59,7 @@ function getHuffmanTree(f){
 
 function setUpData(t){
 	table = {};
+	if(!t)	t = ' ';
 	text = t;
 	frequency = getFrequency(text);
 	data = getHuffmanTree(frequency);
