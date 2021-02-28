@@ -1,0 +1,8 @@
+circle.node{
+	fill: aqua;
+}
+
+line.link{
+	stroke: black;
+	stroke-width: 1;
+}

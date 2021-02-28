@@ -1,6 +1,6 @@
 var text;
 var frequency;
-var root;
+var data;
 function getFrequency(text){
 	f = {};
 	t = Array.from(text);
@@ -43,8 +43,8 @@ function getHuffmanTree(f){
 	return p;
 }
 
-function setUp(t){
+function setUpData(t){
 	text = t;
 	frequency = getFrequency(text);
-	root = getHuffmanTree(frequency);
+	data = getHuffmanTree(frequency);
 }
