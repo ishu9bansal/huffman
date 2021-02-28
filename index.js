@@ -72,6 +72,10 @@ function mouseOut(d){
 	highlight();
 }
 
+function outputText(){
+	
+}
+
 function onTextChange(t){
 	setUpData(t);
 	root = d3.hierarchy(data);
@@ -185,6 +189,7 @@ function onTextChange(t){
 	.remove();
 
 	render();
+	outputText();
 }
 
 function init(){
@@ -195,7 +200,17 @@ function init(){
 	w = width/2 - 2*offset - 2*padding;
 	h = height - 2*offset;
 
+	document.getElementById('input_text').value = text;
 	svg = d3.select("svg").attr("width", width/2).attr("height", height);
+	d3.select("div.text_div").style("width", width/2).style("height", height)
+	.style("top",0).style("left", width/2);
+	d3.select("#input_text").style("width", width/2).style("height", height/2);
+	d3.select("#output_text").style("width", width/2).style("height", height/2);
+	onTextChange(text);
+}
+
+function handleInput(){
+	text = document.getElementById('input_text').value;
 	onTextChange(text);
 }
 
