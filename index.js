@@ -20,7 +20,8 @@ function render(){
 	.transition().duration(period)
 	.attr('cy', d => offset+d.x)
 	.attr('cx', d => offset+d.y)
-	.attr('r', d => d.height?radius:0);
+	.attr('r', d => radius)
+	.style("opacity", d => d.height);
 
 	// svg.selectAll('text')
 	// .transition().duration(quick)
@@ -47,6 +48,30 @@ function render(){
 
 }
 
+function highlight(){
+	svg.selectAll('line.link')
+	.transition().duration(quick)
+	.style('stroke', d => d.target.highlight?'aqua':'grey');
+	svg.selectAll('circle.node')
+	.transition().duration(quick)
+	.style('fill', d => d.highlight?'aqua':'lightcyan')
+	.attr('r', d => radius*(d.highlight?1.5:1));
+	svg.selectAll('text.link')
+	.transition().duration(quick)
+	.style('font-weight', d => d.highlight?'bold':'regular');
+
+}
+
+function mouseOver(d){
+	ancestors = d.ancestors().forEach(x => x.highlight = true);
+	highlight();
+}
+
+function mouseOut(d){
+	ancestors = d.ancestors().forEach(x => x.highlight = false);
+	highlight();
+}
+
 function onTextChange(t){
 	setUpData(t);
 	root = d3.hierarchy(data);
@@ -65,7 +90,8 @@ function onTextChange(t){
 	.attr('y1', d => offset+d.source.x)
 	.attr('x1', d => offset+d.source.y)
 	.attr('y2', d => offset+d.source.x)
-	.attr('x2', d => offset+d.source.y);
+	.attr('x2', d => offset+d.source.y)
+	.style('stroke', 'grey');
 	
 	line_link
 	.exit()
@@ -89,6 +115,7 @@ function onTextChange(t){
 	.attr('cy', d => offset+d.x)
 	.attr('cx', d => offset+d.y)
 	.attr('r', d => 0)
+	.style('fill', 'lightcyan');
 
 	circle_node
 	.exit()
@@ -130,7 +157,9 @@ function onTextChange(t){
 	// .attr("text-anchor", "middle")
 	.attr("fill", "black")
 	// .style("opacity", 0)
-	.text(d => d.data.name + "\u00A0\u00A0\u00A0" + d.data.key);
+	.text(d => d.data.name + "\u00A0\u00A0\u00A0" + d.data.key)
+	.on('mouseover', mouseOver)
+	.on('mouseout', mouseOut);
 
 	text_label
 	.exit()
