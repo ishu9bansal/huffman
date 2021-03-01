@@ -4,6 +4,7 @@ const labelSpace = 10;
 const delay = 500;
 const period = 1000;
 const quick = 200;
+var flip;
 var motionOn;
 var offset;
 var root;
@@ -16,10 +17,10 @@ function render(){
 	.transition().duration(period)
 	.on("start", () => motionOn = true)
 	.on("end", () => motionOn = false)
-	.attr('y1', d => offset+d.source.x)
-	.attr('x1', d => offset+d.source.y)
-	.attr('y2', d => offset+d.target.x)
-	.attr('x2', d => offset+d.target.y)
+	.attr(flip?'x1':'y1', d => offset+d.source.x)
+	.attr(flip?'y1':'x1', d => offset+d.source.y)
+	.attr(flip?'x2':'y2', d => offset+d.target.x)
+	.attr(flip?'y2':'x2', d => offset+d.target.y)
 	.style('stroke', 'lightgrey')
 	.style("opacity", d => d.target.height);
 
@@ -27,8 +28,8 @@ function render(){
 	.transition().duration(period)
 	.on("start", () => motionOn = true)
 	.on("end", () => motionOn = false)
-	.attr('cy', d => offset+d.x)
-	.attr('cx', d => offset+d.y)
+	.attr(flip?'cx':'cy', d => offset+d.x)
+	.attr(flip?'change':'cx', d => offset+d.y)
 	.attr('r', d => radius)
 	.style("opacity", d => d.height);
 
@@ -40,16 +41,16 @@ function render(){
 	.transition().duration(period)
 	.on("start", () => motionOn = true)
 	.on("end", () => motionOn = false)
-	.attr("y", d => offset+d.x)
-	.attr("x", d => offset+d.y)
+	.attr(flip?'x':"y", d => offset+d.x)
+	.attr(flip?'y':"x", d => offset+d.y)
 	.text(d => d.data.value);
 
 	svg.selectAll("text.label")
 	.transition().duration(period)
 	.on("start", () => motionOn = true)
 	.on("end", () => motionOn = false)
-	.attr("y", d => offset+d.x)
-	.attr("x", d => offset+d.y)
+	.attr(flip?'x':"y", d => offset+d.x)
+	.attr(flip?'y':"x", d => offset+d.y)
 	.text(d => d.data.name + "\u00A0\u00A0\u00A0" + table[d.data.key]);
 
 	svg.selectAll('text.link')
@@ -57,8 +58,8 @@ function render(){
 	.transition().duration(period)
 	.on("start", () => motionOn = true)
 	.on("end", () => motionOn = false)
-	.attr("y", d => offset+(d.target.x+d.source.x)/2)
-	.attr("x", d => offset+(d.target.y+d.source.y)/2)
+	.attr(flip?'x':"y", d => offset+(d.target.x+d.source.x)/2)
+	.attr(flip?'y':"x", d => offset+(d.target.y+d.source.y)/2)
 	.text(d => d.target.data.key.substr(-1));
 
 }
@@ -120,10 +121,10 @@ function onTextChange(t){
 	.enter()
 	.filter(d => d.target.height)
 	.append('line').classed('link', true)
-	.attr('y1', d => offset+d.source.x)
-	.attr('x1', d => offset+d.source.y)
-	.attr('y2', d => offset+d.source.x)
-	.attr('x2', d => offset+d.source.y);
+	.attr(flip?'x1':'y1', d => offset+d.source.x)
+	.attr(flip?'y1':'x1', d => offset+d.source.y)
+	.attr(flip?'x2':'y2', d => offset+d.source.x)
+	.attr(flip?'y2':'x2', d => offset+d.source.y);
 	
 	line_link
 	.exit()
@@ -144,8 +145,8 @@ function onTextChange(t){
 	// .filter(d => d.height)
 	.append('circle')
 	.classed('node', true)
-	.attr('cy', d => offset+d.x)
-	.attr('cx', d => offset+d.y)
+	.attr(flip?'cx':'cy', d => offset+d.x)
+	.attr(flip?'cy':'cx', d => offset+d.y)
 	.attr('r', d => 0)
 	.style('fill', 'lightcyan');
 
@@ -164,8 +165,8 @@ function onTextChange(t){
 	.filter(d => d.height)
 	.append("text")
 	.classed("count", d => d.height)
-	.attr("y", d => offset+d.x)
-	.attr("x", d => offset+d.y)
+	.attr(flip?'x':"y", d => offset+d.x)
+	.attr(flip?'y':"x", d => offset+d.y)
 	.attr("dominant-baseline", "middle")
 	.attr("text-anchor", "middle")
 	.attr("fill", "black");
@@ -181,8 +182,8 @@ function onTextChange(t){
 	.enter()
 	.append("text")
 	.classed("label", true)
-	.attr("y", d => offset+d.x)
-	.attr("x", d => offset+d.y)
+	.attr(flip?'x':"y", d => offset+d.x)
+	.attr(flip?'y':"x", d => offset+d.y)
 	.attr("dominant-baseline", "middle")
 	// .attr("text-anchor", "middle")
 	.attr("fill", "black")
@@ -203,8 +204,8 @@ function onTextChange(t){
 	.filter(d => d.target.height)
 	.append('text')
 	.classed('link', true)
-	.attr("y", d => offset+(d.target.x+d.source.x)/2)
-	.attr("x", d => offset+(d.target.y+d.source.y)/2)
+	.attr(flip?'x':"y", d => offset+(d.target.x+d.source.x)/2)
+	.attr(flip?'y':"x", d => offset+(d.target.y+d.source.y)/2)
 	.attr("text-anchor", "middle")
 	.attr("fill", "#e6e6e6");
 
@@ -221,15 +222,18 @@ function init(){
 	width = window.innerWidth - 20;
 	height = window.innerHeight - 20;
 
-	w = width/2 - 2*offset - 2*padding;
-	h = height - 2*offset;
+	flip = width<height;
+
+	w = width/(flip?1:2) - 2*offset - padding*(flip?0:2);
+	h = height/(flip?2:1) - 2*offset - padding*(flip?2:0);
 
 	document.getElementById('input_text').value = text;
-	svg = d3.select("svg").attr("width", width/2).attr("height", height);
-	d3.select("div.text_div").style("width", width/2).style("height", height)
-	.style("top",0).style("left", width/2);
-	d3.select("#input_text").style("width", width/2).style("height", height/2);
-	d3.select("#output_text").style("width", width/2).style("height", height/2);
+	svg = d3.select("svg").attr("width", width/(flip?1:2)).attr("height", height/(flip?2:1));
+	text_div = d3.select("div.text_div").style("width", width/(flip?1:2)).style("height", height/(flip?2:1));
+	// if(!flip)
+	text_div.style("top",flip?(height/2):0).style("left", flip?0:(width/2));
+	d3.select("#input_text").style("width", width/(flip?1:2)).style("height", height/2);
+	d3.select("#output_text").style("width", width/(flip?1:2));
 	onTextChange(text);
 
 	svg.append('rect').classed('play', true)
@@ -286,10 +290,10 @@ function formationStep(n){
 	svg.selectAll('line.link')
 	.filter(d => d.source.data.formationId == n)
 	.transition().duration(quick)
-	.attr('y1', d => offset+d.source.x)
-	.attr('x1', d => offset+d.source.y)
-	.attr('y2', d => offset+d.target.x)
-	.attr('x2', d => offset+d.target.y);
+	.attr(flip?'x1':'y1', d => offset+d.source.x)
+	.attr(flip?'y1':'x1', d => offset+d.source.y)
+	.attr(flip?'x2':'y2', d => offset+d.target.x)
+	.attr(flip?'y2':'x2', d => offset+d.target.y);
 
 	svg.selectAll('circle.node')
 	.filter(d => d.data.formationId == n)
@@ -312,10 +316,10 @@ function formationStep(n){
 
 function showTreeFormation(){
 	svg.selectAll('line.link')
-	.attr('y1', d => offset+d.target.x)
-	.attr('x1', d => offset+d.target.y)
-	.attr('y2', d => offset+d.target.x)
-	.attr('x2', d => offset+d.target.y);
+	.attr(flip?'x1':'y1', d => offset+d.target.x)
+	.attr(flip?'y1':'x1', d => offset+d.target.y)
+	.attr(flip?'x2':'y2', d => offset+d.target.x)
+	.attr(flip?'y2':'x2', d => offset+d.target.y);
 
 	svg.selectAll('circle.node')
 	.attr('r', 0);
