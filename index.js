@@ -1,16 +1,21 @@
-var padding = 100;
-var radius = 10;
-var labelSpace = 10;
-var period = 2000;
-var quick = 200;
+const padding = 100;
+const radius = 10;
+const labelSpace = 10;
+const delay = 500;
+const period = 1000;
+const quick = 200;
+var motionOn;
 var offset;
 var root;
 var svg;
+var stop;
 var transformationStep;
 
 function render(){
 	svg.selectAll('line.link')
 	.transition().duration(period)
+	.on("start", () => motionOn = true)
+	.on("end", () => motionOn = false)
 	.attr('y1', d => offset+d.source.x)
 	.attr('x1', d => offset+d.source.y)
 	.attr('y2', d => offset+d.target.x)
@@ -20,6 +25,8 @@ function render(){
 
 	svg.selectAll('circle.node')
 	.transition().duration(period)
+	.on("start", () => motionOn = true)
+	.on("end", () => motionOn = false)
 	.attr('cy', d => offset+d.x)
 	.attr('cx', d => offset+d.y)
 	.attr('r', d => radius)
@@ -31,12 +38,16 @@ function render(){
 
 	svg.selectAll("text.count")
 	.transition().duration(period)
+	.on("start", () => motionOn = true)
+	.on("end", () => motionOn = false)
 	.attr("y", d => offset+d.x)
 	.attr("x", d => offset+d.y)
 	.text(d => d.data.value);
 
 	svg.selectAll("text.label")
 	.transition().duration(period)
+	.on("start", () => motionOn = true)
+	.on("end", () => motionOn = false)
 	.attr("y", d => offset+d.x)
 	.attr("x", d => offset+d.y)
 	.text(d => d.data.name + "\u00A0\u00A0\u00A0" + table[d.data.key]);
@@ -44,6 +55,8 @@ function render(){
 	svg.selectAll('text.link')
 	.style("opacity", d => d.target.height)
 	.transition().duration(period)
+	.on("start", () => motionOn = true)
+	.on("end", () => motionOn = false)
 	.attr("y", d => offset+(d.target.x+d.source.x)/2)
 	.attr("x", d => offset+(d.target.y+d.source.y)/2)
 	.text(d => d.target.data.key.substr(-1));
@@ -65,12 +78,14 @@ function highlight(){
 }
 
 function mouseOver(d){
+	if(motionOn)	return;
 	ancestors = d.ancestors().forEach(x => x.highlight = true);
 	highlight();
 	d3.selectAll('span.c'+d.data.key.charCodeAt().toString()).style("background-color", 'aqua');
 }
 
 function mouseOut(d){
+	if(motionOn)	return;
 	ancestors = d.ancestors().forEach(x => x.highlight = false);
 	highlight();
 	d3.selectAll('span.c'+d.data.key.charCodeAt().toString()).style("background-color", null);
@@ -87,6 +102,9 @@ function outputText(){
 }
 
 function onTextChange(t){
+	motionOn = false;
+	transformationStep = 0;
+	if(stop)	handlePlay();
 	setUpData(t);
 	root = d3.hierarchy(data);
 	var treeLayout = d3.cluster();
@@ -212,10 +230,36 @@ function init(){
 	d3.select("#output_text").style("width", width/2).style("height", height/2);
 	onTextChange(text);
 
-	window.onkeypress = function(e){
-		if(e.key=="`") nextStep();
-		else if(e.key==" ")	showTreeFormation();
-	};
+	svg.append('rect').classed('play', true)
+	.attr('width', 2*offset).attr('height', 2*offset)
+	.attr('x', offset).attr('y', offset)
+	.style('fill', 'aqua')
+	.on('click', handlePlay);
+
+	svg.append('rect').classed('next', true)
+	.attr('width', 2*offset).attr('height', 2*offset)
+	.attr('x', 3.1*offset).attr('y', offset)
+	.style('fill', 'lightcyan')
+	.on('click', function(){
+		if(stop)	handlePlay();
+		handleNext();
+	});
+
+}
+
+function handlePlay(){
+	if(stop){
+		clearInterval(stop);
+		stop = 0;
+	}
+	else{
+		handleNext();
+		stop = setInterval(handleNext, delay);
+	}
+}
+
+function handleNext(){
+	formationStep(transformationStep++);
 }
 
 function handleInput(){
@@ -224,6 +268,17 @@ function handleInput(){
 }
 
 function formationStep(n){
+	if(!n){
+		showTreeFormation();
+		return;
+	}
+	if(n>root.data.formationId){
+		render();
+		if(stop)	handlePlay();
+		motionOn = false;
+		transformationStep = 0;
+		return;
+	}
 	svg.selectAll('line.link')
 	.filter(d => d.source.data.formationId == n)
 	.transition().duration(quick)
@@ -270,14 +325,16 @@ function showTreeFormation(){
 	svg.selectAll('text.link')
 	.style("opacity", 0);
 
-	transformationStep = 0;
-
+	motionOn = true;
 }
 
 function nextStep(){
-	transformationStep++;
-	if(transformationStep>root.data.formationId)	render();
-	else	formationStep(transformationStep);
+	if(transformationStep<root.data.formationId){
+		formationStep(++transformationStep);
+		return;
+	}
+	render();
+	motionOn = false;
 }
 
 init();
