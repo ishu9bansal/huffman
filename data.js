@@ -25,9 +25,11 @@ function postProcessing(node, key = ""){
 
 function getHuffmanTree(f){
 	var nodes = [];
+	formationId = 1;
 	for(var k in f){
 		nodes.push({
 			value: f[k],
+			formationId: formationId,
 			children: [
 				{
 					name: k
@@ -41,6 +43,7 @@ function getHuffmanTree(f){
 		var q = nodes.pop();
 		node = {
 			value: p.value+q.value,
+			formationId: ++formationId,
 			children: [p,q]
 		};
 		nodes.push(node);

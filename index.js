@@ -2,10 +2,11 @@ var padding = 100;
 var radius = 10;
 var labelSpace = 10;
 var period = 2000;
-var quick = 100;
+var quick = 200;
 var offset;
 var root;
 var svg;
+var transformationStep;
 
 function render(){
 	svg.selectAll('line.link')
@@ -210,11 +211,73 @@ function init(){
 	d3.select("#input_text").style("width", width/2).style("height", height/2);
 	d3.select("#output_text").style("width", width/2).style("height", height/2);
 	onTextChange(text);
+
+	window.onkeypress = function(e){
+		if(e.key=="`") nextStep();
+		else if(e.key==" ")	showTreeFormation();
+	};
 }
 
 function handleInput(){
 	text = document.getElementById('input_text').value;
 	onTextChange(text);
+}
+
+function formationStep(n){
+	svg.selectAll('line.link')
+	.filter(d => d.source.data.formationId == n)
+	.transition().duration(quick)
+	.attr('y1', d => offset+d.source.x)
+	.attr('x1', d => offset+d.source.y)
+	.attr('y2', d => offset+d.target.x)
+	.attr('x2', d => offset+d.target.y);
+
+	svg.selectAll('circle.node')
+	.filter(d => d.data.formationId == n)
+	.transition().duration(quick)
+	.attr('r', 2*radius)
+	.transition().duration(quick)
+	.style('fill', 'aqua')
+	.attr('r', radius);
+
+	svg.selectAll('circle.node')
+	.filter(d => d.parent&&d.parent.data.formationId == n)
+	.transition().duration(quick)
+	.style('fill', 'lightcyan');
+
+	svg.selectAll("text.count")
+	.filter(d => d.data.formationId == n)
+	.transition().duration(quick)
+	.style("opacity", 1);
+}
+
+function showTreeFormation(){
+	svg.selectAll('line.link')
+	.attr('y1', d => offset+d.target.x)
+	.attr('x1', d => offset+d.target.y)
+	.attr('y2', d => offset+d.target.x)
+	.attr('x2', d => offset+d.target.y);
+
+	svg.selectAll('circle.node')
+	.attr('r', 0);
+
+	svg.selectAll("text.count")
+	.style("opacity", 0);
+
+	svg.selectAll("text.label")
+	.text(d => d.data.name);
+
+	svg.selectAll('text.link')
+	.style("opacity", 0);
+
+	transformationStep = 0;
+
+}
+
+function nextStep(){
+	transformationStep++;
+	if(transformationStep>root.data.formationId)	render();
+	else	formationStep(transformationStep);
 }
 
 init();
