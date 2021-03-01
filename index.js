@@ -4,6 +4,7 @@ const labelSpace = 10;
 const delay = 500;
 const period = 1000;
 const quick = 200;
+var mouseFreeze;
 var motionOn;
 var offset;
 var root;
@@ -80,13 +81,18 @@ function highlight(){
 
 function mouseOver(d){
 	if(motionOn)	return;
+	if(mouseFreeze){
+		var freezed = mouseFreeze;
+		mouseFreeze = null;
+		mouseOut(freezed);
+	}
 	ancestors = d.ancestors().forEach(x => x.highlight = true);
 	highlight();
 	d3.selectAll('span.c'+d.data.key.charCodeAt().toString()).style("background-color", 'aqua');
 }
 
 function mouseOut(d){
-	if(motionOn)	return;
+	if(motionOn||mouseFreeze)	return;
 	ancestors = d.ancestors().forEach(x => x.highlight = false);
 	highlight();
 	d3.selectAll('span.c'+d.data.key.charCodeAt().toString()).style("background-color", null);
@@ -105,6 +111,7 @@ function outputText(){
 function onTextChange(t){
 	motionOn = false;
 	transformationStep = 0;
+	mouseFreeze = null;
 	if(stop)	handlePlay();
 	setUpData(t);
 	root = d3.hierarchy(data);
@@ -189,6 +196,7 @@ function onTextChange(t){
 	// .style("opacity", 0)
 	.on('mouseover', mouseOver)
 	.on('mouseout', mouseOut)
+	.on('click', d => mouseFreeze = d)
 	.style('cursor', 'cell');
 
 	text_label
