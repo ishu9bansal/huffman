@@ -73,7 +73,8 @@ function highlight(){
 	.attr('r', d => radius*(d.highlight?1.5:1));
 	svg.selectAll('text.link')
 	.transition().duration(quick)
-	.style('font-weight', d => d.highlight?'bold':'regular');
+	.style('fill', d => d.target.highlight?'black':'#e6e6e6')
+	.style('font-weight', d => d.target.highlight?'bold':'lighter');
 
 }
 
@@ -187,7 +188,8 @@ function onTextChange(t){
 	.attr("fill", "black")
 	// .style("opacity", 0)
 	.on('mouseover', mouseOver)
-	.on('mouseout', mouseOut);
+	.on('mouseout', mouseOut)
+	.style('cursor', 'cell');
 
 	text_label
 	.exit()
@@ -204,7 +206,7 @@ function onTextChange(t){
 	.attr("y", d => offset+(d.target.x+d.source.x)/2)
 	.attr("x", d => offset+(d.target.y+d.source.y)/2)
 	.attr("text-anchor", "middle")
-	.attr("fill", "black");
+	.attr("fill", "#e6e6e6");
 
 	text_link
 	.exit()
@@ -234,12 +236,14 @@ function init(){
 	.attr('width', 2*offset).attr('height', 2*offset)
 	.attr('x', offset).attr('y', offset)
 	.style('fill', 'aqua')
+	.style('cursor', 'pointer')
 	.on('click', handlePlay);
 
 	svg.append('rect').classed('next', true)
 	.attr('width', 2*offset).attr('height', 2*offset)
 	.attr('x', 3.1*offset).attr('y', offset)
 	.style('fill', 'lightcyan')
+	.style('cursor', 'pointer')
 	.on('click', function(){
 		if(stop)	handlePlay();
 		handleNext();

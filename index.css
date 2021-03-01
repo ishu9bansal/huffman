@@ -6,6 +6,6 @@ line.link{
 	stroke-width: 1;
 }
 
-text{
+text,span{
 	font-family: monospace;
 }
