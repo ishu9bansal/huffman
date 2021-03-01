@@ -102,9 +102,12 @@ function outputText(){
 	out_text = d3.select("#output_text");
 	out_text.html("");
 	for(var i=0; i<text.length; i++){
-		out_text.append('span')
-		.classed("c"+text[i].charCodeAt().toString(),true)
-		.text(table[text[i]]);
+		var c = text[i];
+		for(var s of table[c]){
+			out_text.append('span')
+			.classed("c"+c.charCodeAt().toString(),true)
+			.text(s);
+		}
 	}
 }
 
