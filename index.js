@@ -255,11 +255,21 @@ function init(){
 	.attr('x', 3.1*offset).attr('y', offset)
 	.style('fill', 'lightcyan')
 	.style('cursor', 'pointer')
-	.on('click', function(){
-		if(stop)	handlePlay();
-		handleNext();
-	});
+	.on('click', handleNext);
 
+	window.onkeypress = handleKeyPress;
+
+}
+
+
+function handleKeyPress(e){
+	// not working?
+	if(e.which==39)	handleNext();
+}
+
+function handleNext(){
+	if(stop)	handlePlay();
+	handleStep();
 }
 
 function handlePlay(){
@@ -268,12 +278,12 @@ function handlePlay(){
 		stop = 0;
 	}
 	else{
-		handleNext();
-		stop = setInterval(handleNext, delay);
+		handleStep();
+		stop = setInterval(handleStep, delay);
 	}
 }
 
-function handleNext(){
+function handleStep(){
 	formationStep(transformationStep++);
 }
 
