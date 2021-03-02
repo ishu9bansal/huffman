@@ -37,24 +37,17 @@ function getHuffmanTree(f){
 			]
 		});
 	}
-	nodes.sort((a,b) => b.value-a.value);
-	var p = nodes.pop();
-	while(nodes.length){
-		var q = nodes.pop();
-		node = {
+	nodes.sort((a,b) => a.value-b.value);
+	var p = nodes.shift();
+	var queue = [];
+	while(nodes.length||queue.length){
+		var q = (nodes.length&&queue.length?queue[0].value<nodes[0].value:queue.length)?queue.shift():nodes.shift();
+		queue.push({
 			value: p.value+q.value,
 			formationId: ++formationId,
 			children: [p,q]
-		};
-		nodes.push(node);
-		var l = nodes.length-1;
-		while(l&&nodes[l].value>nodes[l-1].value){
-			var temp = nodes[l];
-			nodes[l] = nodes[l-1];
-			nodes[l-1] = temp;
-			l--;
-		}
-		p = nodes.pop();
+		});
+		p = (nodes.length&&queue.length?queue[0].value<nodes[0].value:queue.length)?queue.shift():nodes.shift();
 	}
 	postProcessing(p);
 	return p;
